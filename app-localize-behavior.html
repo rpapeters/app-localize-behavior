@@ -11,6 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <script src="../intl-messageformat/dist/intl-messageformat.min.js"></script>
+<script src="../lodash/lodash.min.js"></script>
 
 <script>
 
@@ -169,7 +170,15 @@ Polymer.AppLocalizeBehavior = {
     bubbleEvent: {
       type: Boolean,
       value: false
-    }
+    },
+	
+    /**
+    * If true, already loaded resources will be merged with newly loaded resources
+    */
+	  mergeResources: {
+      type: Boolean,
+      value: true
+	  }
   },
 
   loadResources: function(path, withCredentials, headers) {
@@ -252,7 +261,11 @@ Polymer.AppLocalizeBehavior = {
   },
 
   __onRequestResponse: function(event) {
-    this.resources = event.response;
+    if (this.mergeResources) {
+      this.resources = _.merge({}, this.resources, event.response);
+	  } else {
+      this.resources = event.response;
+	  }
     this.fire('app-localize-resources-loaded', event, { bubbles: this.bubbleEvent});
   },
 
