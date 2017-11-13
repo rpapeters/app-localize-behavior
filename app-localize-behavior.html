@@ -200,7 +200,6 @@ Polymer.AppLocalizeBehavior = {
       if (headers instanceof Object) {
         ajax.headers = headers;
       }
-      this.onGenerateRequest(ajax);
       var request = ajax.generateRequest();
 
       request.completes.then(
@@ -282,10 +281,6 @@ Polymer.AppLocalizeBehavior = {
     if(proto['__localizationCache'] === undefined) {
       proto['__localizationCache'] = {requests: {}, messages: {}, ajax: null};
     }
-  },
-
-  onGenerateRequest: function(ajax) {
-    //give child class opportunity to add request parameters
   }
 }
 
