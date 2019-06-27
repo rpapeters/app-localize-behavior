@@ -164,11 +164,6 @@ interface AppLocalizeBehavior {
   bubbleEvent: boolean|null|undefined;
 
   /**
-   * If true, already loaded resources will be merged with newly loaded resources
-   */
-  mergeResources: boolean|null|undefined;
-
-  /**
    * If true, credentials will be sent accross domains.
    */
   withCredentials: boolean|null|undefined;

@@ -13,19 +13,6 @@ import '@polymer/iron-ajax/iron-ajax.js';
 import IntlMessageFormat from 'intl-messageformat/src/main.js';
 window.IntlMessageFormat = IntlMessageFormat;
 
-// This isn't a complete `Object.assign` polyfill, but this element expects
-// JSON and doesn't provide more than one source object.
-var assign =
-    Object.assign ? Object.assign.bind(Object) : function(destination, source) {
-      for (var prop in source) {
-        if (source.hasOwnProperty(prop)) {
-          destination[prop] = source[prop];
-        }
-      }
-
-      return destination;
-    };
-
 /**
  `AppLocalizeBehavior` wraps the [format.js](http://formatjs.io/)
  library to help you internationalize your application. Note that if you're on
@@ -211,11 +198,6 @@ export const AppLocalizeBehavior = {
     bubbleEvent: {type: Boolean, value: false},
 
     /**
-     If true, already loaded resources will be merged with newly loaded resources
-     */
-    mergeResources: {type: Boolean, value: true},
-
-    /**
      If true, credentials will be sent accross domains.
      */
     withCredentials: {type: Boolean, value: false}
@@ -223,7 +205,9 @@ export const AppLocalizeBehavior = {
 
   loadResources: function(path, language, merge, withCredentials, headers) {
     var proto = this.constructor.prototype;
-    merge = merge || this.mergeResources;
+    if (merge === null || merge === undefined) {
+      merge = true; //defaults to true
+    }
     withCredentials = withCredentials || this.withCredentials;
 
     // Check if localCache exist just in case.
@@ -318,34 +302,21 @@ export const AppLocalizeBehavior = {
   },
 
   __onRequestResponse: function(event, language, merge) {
-    var propertyUpdates = {};
-    var newResources = event.response;
-    if (merge) {
-      if (language) {
-        propertyUpdates.resources = assign({}, this.resources || {});
-        propertyUpdates['resources.' + language] =
-            assign(propertyUpdates.resources[language] || {}, newResources);
-      } else {
-        propertyUpdates.resources = assign(this.resources, newResources);
-      }
+    let newResources;
+
+    if (language) {
+      newResources = {};
+      newResources[language] = event.response;
     } else {
-      if (language) {
-        propertyUpdates.resources = {};
-        propertyUpdates.resources[language] = newResources;
-        propertyUpdates['resources.' + language] = newResources;
-      } else {
-        propertyUpdates.resources = newResources;
-      }
+      newResources = event.response;
     }
-    if (this.setProperties) {
-      this.setProperties(propertyUpdates);
-    } else {
-      for (var key in propertyUpdates) {
-        this.set(key, propertyUpdates[key]);
-      }
-    }
-    this.fire(
-        'app-localize-resources-loaded', event, {bubbles: this.bubbleEvent});
+
+    if (merge && this.resources != undefined) {
+      this.resources = _.merge({}, this.resources, newResources);
+	  } else {
+      this.resources = newResources;
+	  }
+    this.fire('app-localize-resources-loaded', event, {bubbles: this.bubbleEvent});
   },
 
   __onRequestError: function(event) {
