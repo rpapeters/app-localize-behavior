@@ -8,8 +8,8 @@ found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
 part of the polymer project is also subject to an additional IP rights grant
 found at http://polymer.github.io/PATENTS.txt
 */
-import '@polymer/polymer/polymer-legacy.js';
 import '@polymer/iron-ajax/iron-ajax.js';
+import '@polymer/polymer/polymer-legacy.js';
 import IntlMessageFormat from 'intl-messageformat/src/main.js';
 window.IntlMessageFormat = IntlMessageFormat;
 
@@ -265,8 +265,9 @@ export const AppLocalizeBehavior = {
       var key = arguments[0];
       if (!key || !resources || !language)
         return;
+      const fallbackLanguage = language.split('-')[0];
       if (!resources[language])
-        language = language.split('-')[0]; // e.g. when using 'en-US' as language fallback to 'en' when 'en-US' is not available
+        language = fallbackLanguage; // e.g. when using 'en-US' as language fallback to 'en' when 'en-US' resource is not available
       if (!resources[language])
         return;
 
@@ -274,6 +275,10 @@ export const AppLocalizeBehavior = {
       // do extra work if we're just reusing strings across an application.
       var translatedValue = resources[language][key];
 
+      // Use fallback language in case one language code (e.g. 'en') is used in combination with multiple country codes (e.g. 'en-us', 'en-gb')
+      // Shared translations can be defined in the 'en' resource and specific translations in the 'en-us'/'en-gb' resource.
+      if (!translatedValue && resources[fallbackLanguage]) 
+        translatedValue = resources[fallbackLanguage][key];
       if (!translatedValue) {
         if (this.useKeyIfMissing) {
           translatedValue = key.toString();
