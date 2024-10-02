@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/rpapeters/app-localize-behavior",
   "name": "@rpapeters/app-localize-behavior",
-  "version": "3.0.4",
+  "version": "3.0.6",
   "main": "app-localize-behavior.js",
   "author": "The Polymer Authors",
   "license": "BSD-3-Clause",
